@@ -80,7 +80,8 @@ CREATE TABLE `news` (
   `update_at` datetime NOT NULL INDEX,
   `creator_user_id` int(11) NOT NULL INDEX,
   `updator_user_id` int(11) NOT NULL INDEX,
-  `content` TEXT NOT NULL
+  `view_count` int(11) NOT NULL INDEX,
+  `main_image_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -110,11 +111,56 @@ DROP TABLE IF EXISTS `news_comment`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `news_comment` (
   `news_comment_id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  `news_id` int(11) NOT NULL,
+  `news_id` int(11) NOT NULL INDEX,
+  `parent_comment_id` DEFAULT NULL INDEX, /* 回帖盖楼 */
   `user_id` int(11) NOT NULL,
-  `content` varchar(1024) DEFAULT NULL, /* text is a mysql keyword, avoid it */
+  `content` text DEFAULT NULL, /* text is a mysql datatype, avoid using it as field name */
+  `good_num` int(11) NOT NULL, /* 赞 */
+  `bad_num` int(11) NOT NULL,  /* 踩 */
   `created_at` datetime NOT NULL INDEX,
   `updated_at` datetime NOT NULL INDEX
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `news_content`
+--
+
+DROP TABLE IF EXISTS `news_content`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `news_content` (
+  `news_id` int(11) NOT NULL PRIMARY KEY,
+  `index` int(11) NOT NULL,
+  `type` int(11) NOT NULL,
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `news_content_text`
+--
+
+DROP TABLE IF EXISTS `news_content_text`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `news_content_text` (
+  `news_id` int(11) NOT NULL PRIMARY KEY,
+  `content` TEXT NOT NULL,
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `news_content_type`
+--
+
+DROP TABLE IF EXISTS `news_content_type`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `news_content_type` (
+  `new_content_type_id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(45) NOT NULL,
+  PRIMARY KEY (`new_content_type_id`),
+  UNIQUE KEY `new_content_type_id_UNIQUE` (`new_content_type_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -127,9 +173,7 @@ DROP TABLE IF EXISTS `news_content_image`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `news_content_image` (
   `news_content_image_id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  `image_path` varchar(256) NOT NULL,
-  PRIMARY KEY (`news_content_image_id`),
-  UNIQUE KEY `news_content_image_id_UNIQUE` (`news_content_image_id`)
+  `image_path` varchar(256) NOT NULL UNIQUE INDEX
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
