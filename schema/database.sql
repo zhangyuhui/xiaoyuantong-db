@@ -23,9 +23,12 @@ DROP TABLE IF EXISTS `college`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `college` (
-  `college_id` int(11) NOT NULL,
-  `name` varchar(120) DEFAULT NULL,
-  PRIMARY KEY (`college_id`)
+  `college_id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `name` varchar(120) NOT NULL UNIQUE INDEX,
+  `created_at` datetime NOT NULL INDEX,
+  `update_at` datetime NOT NULL INDEX,
+  `birthday` datetime NOT NULL INDEX, /* 建校时间 */
+  `description` text DEFAULT NULL,
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -37,11 +40,13 @@ DROP TABLE IF EXISTS `department`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `department` (
-  `department_id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(120) NOT NULL,
-  `college_id` int(11) NOT NULL,
-  PRIMARY KEY (`department_id`),
-  UNIQUE KEY `department_id_UNIQUE` (`department_id`)
+  `department_id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `name` varchar(120) NOT NULL UNIQUE INDEX,
+  `college_id` int(11) NOT NULL INDEX,
+  `birthday` datetime NOT NULL INDEX,
+  `created_at` datetime NOT NULL INDEX,
+  `update_at` datetime NOT NULL INDEX,
+  `description` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -53,10 +58,10 @@ DROP TABLE IF EXISTS `major`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `major` (
-  `major_id` int(11) NOT NULL,
+  `major_id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `name` varchar(120) NOT NULL,
   `department_id` int(11) NOT NULL,
-  PRIMARY KEY (`major_id`)
+  `description` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -68,12 +73,15 @@ DROP TABLE IF EXISTS `news`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `news` (
-  `news_id` int(11) NOT NULL,
+  `news_id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `title` varchar(256) NOT NULL,
   `category` int(11) DEFAULT NULL,
-  `created_at` datetime NOT NULL,
-  `created_by` int(11) NOT NULL,
-  PRIMARY KEY (`news_id`)
+  `created_at` datetime NOT NULL INDEX,
+  `update_at` datetime NOT NULL INDEX,
+  `creator_user_id` int(11) NOT NULL INDEX,
+  `updator_user_id` int(11) NOT NULL INDEX,
+  `view_count` int(11) NOT NULL INDEX,
+  `main_image_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -85,10 +93,12 @@ DROP TABLE IF EXISTS `news_category`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `news_category` (
-  `category_id` int(11) NOT NULL,
-  `name` varchar(256) NOT NULL,
-  `description` varchar(1024) NOT NULL,
-  PRIMARY KEY (`category_id`)
+  `category_id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `parent_category_id` int(11) INDEX,
+  `name` varchar(256) NOT NULL INDEX,
+  `created_at` datetime NOT NULL INDEX,
+  `update_at` datetime NOT NULL INDEX,
+  `description` varchar(1024) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -100,13 +110,15 @@ DROP TABLE IF EXISTS `news_comment`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `news_comment` (
-  `news_comment_id` int(11) NOT NULL AUTO_INCREMENT,
-  `news_id` int(11) NOT NULL,
+  `news_comment_id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `news_id` int(11) NOT NULL INDEX,
+  `parent_comment_id` DEFAULT NULL INDEX, /* 回帖盖楼 */
   `user_id` int(11) NOT NULL,
-  `text` varchar(1024) DEFAULT NULL,
-  `created_at` datetime NOT NULL,
-  PRIMARY KEY (`news_comment_id`),
-  UNIQUE KEY `news_comment_id_UNIQUE` (`news_comment_id`)
+  `content` text DEFAULT NULL, /* text is a mysql datatype, avoid using it as field name */
+  `good_num` int(11) NOT NULL, /* 赞 */
+  `bad_num` int(11) NOT NULL,  /* 踩 */
+  `created_at` datetime NOT NULL INDEX,
+  `updated_at` datetime NOT NULL INDEX
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -118,27 +130,9 @@ DROP TABLE IF EXISTS `news_content`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `news_content` (
-  `news_content_id` int(11) NOT NULL AUTO_INCREMENT,
-  `news_id` int(11) NOT NULL,
+  `news_id` int(11) NOT NULL PRIMARY KEY,
   `index` int(11) NOT NULL,
   `type` int(11) NOT NULL,
-  PRIMARY KEY (`news_content_id`),
-  UNIQUE KEY `news_content_id_UNIQUE` (`news_content_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `news_content_image`
---
-
-DROP TABLE IF EXISTS `news_content_image`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `news_content_image` (
-  `news_content_image_id` int(11) NOT NULL AUTO_INCREMENT,
-  `image_path` varchar(256) NOT NULL,
-  PRIMARY KEY (`news_content_image_id`),
-  UNIQUE KEY `news_content_image_id_UNIQUE` (`news_content_image_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -150,10 +144,8 @@ DROP TABLE IF EXISTS `news_content_text`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `news_content_text` (
-  `news_content_text_id` int(11) NOT NULL AUTO_INCREMENT,
-  `text` varchar(4096) NOT NULL,
-  PRIMARY KEY (`news_content_text_id`),
-  UNIQUE KEY `news_content_text_id_UNIQUE` (`news_content_text_id`)
+  `news_id` int(11) NOT NULL PRIMARY KEY,
+  `content` TEXT NOT NULL,
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -173,6 +165,28 @@ CREATE TABLE `news_content_type` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `news_content_image`
+--
+
+DROP TABLE IF EXISTS `news_content_image`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `news_content_image` (
+  `news_content_image_id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `image_path` varchar(256) NOT NULL UNIQUE INDEX
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+
+/* many to many relation */
+CREATE TABLE `news_image_relation` (
+  `news_id` int(11) NOT NULL,
+  `image_id` int(11) NOT NULL,
+  UNIQUE KEY (news_id, image_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `news_favorite`
 --
 
@@ -180,13 +194,11 @@ DROP TABLE IF EXISTS `news_favorite`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `news_favorite` (
-  `news_favorite_id` int(11) NOT NULL AUTO_INCREMENT,
   `user_id` int(11) NOT NULL,
   `news_id` int(11) NOT NULL,
   `favorite_type` int(11) NOT NULL,
   `created_at` datetime NOT NULL,
-  PRIMARY KEY (`news_favorite_id`),
-  UNIQUE KEY `idnews_favorite_UNIQUE` (`news_favorite_id`)
+  UNIQUE KEY (`news_favorite_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -198,14 +210,13 @@ DROP TABLE IF EXISTS `news_push_list`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `news_push_list` (
-  `news_push_list_id` int(11) NOT NULL AUTO_INCREMENT,
   `news_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
   `read_status` int(11) NOT NULL,
+  `read_time` datetime NOT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
-  PRIMARY KEY (`news_push_list_id`),
-  UNIQUE KEY `news_push_list_id_UNIQUE` (`news_push_list_id`)
+  UNIQUE KEY (`news_id`, `user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -213,18 +224,17 @@ CREATE TABLE `news_push_list` (
 -- Table structure for table `student`
 --
 
-DROP TABLE IF EXISTS `student`;
+DROP TABLE IF EXISTS `student_major`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `student` (
-  `student_id` int(11) NOT NULL AUTO_INCREMENT,
+/* a student is a user in student stage */
+CREATE TABLE `student_major` (
+  `user_id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY ,
   `year` varchar(4) DEFAULT NULL,
   `level` int(11) DEFAULT NULL,
-  `college_id` int(11) DEFAULT NULL,
-  `department_id` int(11) DEFAULT NULL,
-  `major_id` int(11) DEFAULT NULL,
-  PRIMARY KEY (`student_id`),
-  UNIQUE KEY `student_id_UNIQUE` (`student_id`)
+  `college_id` int(11) DEFAULT NULL, /* can be infered from marjor_id, keep for performance? */
+  `department_id` int(11) DEFAULT NULL INDEX, /* can be infered from marjor_id, keep for performance? */
+  `major_id` int(11) DEFAULT NULL INDEX,
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -236,12 +246,13 @@ DROP TABLE IF EXISTS `teacher`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `teacher` (
-  `teacher_id` int(11) NOT NULL AUTO_INCREMENT,
-  `title` int(11) DEFAULT NULL,
-  `college_id` int(11) DEFAULT NULL,
-  `department_id` int(11) DEFAULT NULL,
-  PRIMARY KEY (`teacher_id`),
-  UNIQUE KEY `teacher_id_UNIQUE` (`teacher_id`)
+  `user_id` int(11) NOT NULL,
+  `title_id` int(11) DEFAULT NULL INDEX,
+  `start_time` datetime NOT NULL INDEX,
+  `college_id` int(11) DEFAULT NULL INDEX,
+  `department_id` int(11) DEFAULT NULL INDEX,
+  `major_id` int(11) DEFAULT NULL INDEX,
+  UNIQUE INDEX (user_id, title_id, major_id, start_time)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -268,7 +279,9 @@ DROP TABLE IF EXISTS `user`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `user` (
   `name` varchar(60) NOT NULL,
-  `user_id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `sex` int(11) NOT NULL,
+  `birthday` datetime NOT NULL DEFAULT '1970-01-01 00:00:01',
   `description` varchar(1024) DEFAULT NULL,
   `type` int(11) NOT NULL,
   `password` varchar(1024) CHARACTER SET latin1 COLLATE latin1_bin NOT NULL,
@@ -278,8 +291,6 @@ CREATE TABLE `user` (
   `status` int(11) NOT NULL,
   `created_at` datetime NOT NULL DEFAULT '1970-01-01 00:00:01',
   `updated_at` datetime NOT NULL DEFAULT '1970-01-01 00:00:01',
-  PRIMARY KEY (`name`,`user_id`),
-  UNIQUE KEY `user_id_UNIQUE` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
